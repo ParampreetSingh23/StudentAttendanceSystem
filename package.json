@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@sendgrid/mail": "^8.1.5",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "feather-icons": "^4.29.2",

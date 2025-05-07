@@ -9,8 +9,43 @@ const attendanceRoutes = require('./routes/attendanceRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Set up MongoDB connection (in-memory for demo)
-async function setupMongoDB() {
+// Set up MongoDB connection
+async function connectToMongoDB() {
+    console.log('Attempting to connect to local MongoDB...');
+    
+    try {
+        // Set a connection timeout of 5 seconds
+        const connectionOptions = {
+            serverSelectionTimeoutMS: 5000, // 5 seconds timeout
+            connectTimeoutMS: 5000
+        };
+        
+        // Try to connect to local MongoDB first
+        await mongoose.connect('mongodb://127.0.0.1:27017/student_attendance', connectionOptions);
+        console.log('✅ Connected to local MongoDB successfully');
+        return true;
+    } catch (err) {
+        console.error('❌ Local MongoDB connection error:', err.message);
+        console.log('Falling back to in-memory database...');
+        return false;
+    }
+}
+
+// Call the connection function and use in-memory as fallback
+console.log('Starting MongoDB connection process...');
+connectToMongoDB().then(isConnected => {
+    if (!isConnected) {
+        console.log('Local MongoDB connection failed, setting up in-memory database');
+        setupInMemoryMongoDB();
+    }
+}).catch(err => {
+    console.error('Unexpected error in MongoDB connection process:', err);
+    console.log('Attempting in-memory database as fallback');
+    setupInMemoryMongoDB();
+});
+
+// Fallback function for in-memory MongoDB in case local connection fails
+async function setupInMemoryMongoDB() {
     try {
         // Create an in-memory MongoDB server
         const mongoServer = await MongoMemoryServer.create();
@@ -26,9 +61,6 @@ async function setupMongoDB() {
         process.exit(1);
     }
 }
-
-// Initialize MongoDB connection
-setupMongoDB();
 
 // Middleware
 app.use(express.json());
