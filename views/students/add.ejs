@@ -1,0 +1,134 @@
+<%- include('../partials/header') %>
+
+<div class="page-container animate-fade-in">
+    <div class="page-header">
+        <h1>Add New Student</h1>
+        <a href="/students" class="btn secondary-btn">
+            <i class="feather-arrow-left"></i> Back to List
+        </a>
+    </div>
+    
+    <% if (locals.errors && errors && errors.length > 0) { %>
+        <div class="alert alert-error animate-shake">
+            <i class="feather-alert-circle"></i>
+            <ul>
+                <% errors.forEach(error => { %>
+                    <li><%= error %></li>
+                <% }); %>
+            </ul>
+        </div>
+    <% } %>
+    
+    <div class="card form-card animate-slide-up">
+        <form action="/students/add" method="post" class="student-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="rollNumber">Roll Number *</label>
+                    <input type="text" id="rollNumber" name="rollNumber" 
+                           value="<%= locals.student ? student.rollNumber : '' %>" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" name="name" 
+                           value="<%= locals.student ? student.name : '' %>" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" name="email" 
+                           value="<%= locals.student ? student.email : '' %>" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number *</label>
+                    <input type="tel" id="phone" name="phone" 
+                           value="<%= locals.student ? student.phone : '' %>" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="course">Course *</label>
+                    <input type="text" id="course" name="course" 
+                           value="<%= locals.student ? student.course : '' %>" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="semester">Semester *</label>
+                    <select id="semester" name="semester" required>
+                        <option value="" disabled <%= !locals.student || !student.semester ? 'selected' : '' %>>
+                            Select Semester
+                        </option>
+                        <% for(let i = 1; i <= 8; i++) { %>
+                            <option value="<%= i %>" 
+                                <%= locals.student && student.semester == i ? 'selected' : '' %>>
+                                Semester <%= i %>
+                            </option>
+                        <% } %>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="reset" class="btn secondary-btn">
+                    <i class="feather-refresh-cw"></i> Reset
+                </button>
+                <button type="submit" class="btn primary-btn submit-btn">
+                    <i class="feather-save"></i> Save Student
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Form animation effects
+    const formGroups = document.querySelectorAll('.form-group');
+    
+    formGroups.forEach((group, index) => {
+        group.style.animationDelay = `${0.1 * index}s`;
+        group.classList.add('animate-slide-up');
+    });
+    
+    // Form validation feedback
+    const form = document.querySelector('.student-form');
+    
+    form.addEventListener('submit', function(event) {
+        const inputs = form.querySelectorAll('input, select');
+        let valid = true;
+        
+        inputs.forEach(input => {
+            if (input.hasAttribute('required') && !input.value.trim()) {
+                valid = false;
+                input.classList.add('input-error');
+                input.classList.add('animate-shake');
+                
+                // Remove animation class after animation completes
+                setTimeout(() => {
+                    input.classList.remove('animate-shake');
+                }, 500);
+            } else {
+                input.classList.remove('input-error');
+            }
+        });
+        
+        if (!valid) {
+            event.preventDefault();
+        }
+    });
+    
+    // Remove error class on input
+    const inputs = form.querySelectorAll('input, select');
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            if (this.value.trim()) {
+                this.classList.remove('input-error');
+            }
+        });
+    });
+</script>
+
+<%- include('../partials/footer') %>

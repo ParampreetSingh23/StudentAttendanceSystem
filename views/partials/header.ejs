@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | Student Attendance System</title>
+    
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <a href="/" class="logo">
+                <i data-feather="book-open"></i>
+                <span>Attendance System</span>
+            </a>
+            
+            <nav class="main-nav">
+                <a href="/" class="<%= title === 'Student Attendance System' ? 'active' : '' %>">
+                    <i data-feather="home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="/students" class="<%= title.includes('Student') && !title.includes('Attendance System') ? 'active' : '' %>">
+                    <i data-feather="users"></i>
+                    <span>Students</span>
+                </a>
+                <a href="/attendance/mark" class="<%= title === 'Mark Attendance' ? 'active' : '' %>">
+                    <i data-feather="edit"></i>
+                    <span>Mark Attendance</span>
+                </a>
+                <a href="/attendance/view" class="<%= title === 'View Attendance' ? 'active' : '' %>">
+                    <i data-feather="calendar"></i>
+                    <span>Records</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="main-content">
+        <div class="container">

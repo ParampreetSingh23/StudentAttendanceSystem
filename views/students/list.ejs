@@ -1,0 +1,131 @@
+<%- include('../partials/header') %>
+
+<div class="page-container animate-fade-in">
+    <div class="page-header">
+        <h1>Student List</h1>
+        <a href="/students/add" class="btn primary-btn">
+            <i class="feather-user-plus"></i> Add New Student
+        </a>
+    </div>
+    
+    <% if (locals.error) { %>
+        <div class="alert alert-error animate-shake">
+            <i class="feather-alert-circle"></i>
+            <%= error %>
+        </div>
+    <% } %>
+    
+    <div class="card student-list-card animate-slide-up">
+        <div class="search-container">
+            <div class="search-input">
+                <i class="feather-search"></i>
+                <input type="text" id="studentSearch" placeholder="Search students...">
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Roll Number</th>
+                        <th>Name</th>
+                        <th>Course</th>
+                        <th>Semester</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (students && students.length > 0) { %>
+                        <% students.forEach(student => { %>
+                            <tr class="animate-fade-in-row">
+                                <td><%= student.rollNumber %></td>
+                                <td><%= student.name %></td>
+                                <td><%= student.course %></td>
+                                <td><%= student.semester %></td>
+                                <td><%= student.email %></td>
+                                <td><%= student.phone %></td>
+                                <td class="actions">
+                                    <a href="/students/edit/<%= student._id %>" class="action-btn edit-btn" title="Edit Student">
+                                        <i class="feather-edit-2"></i>
+                                    </a>
+                                    <button class="action-btn delete-btn" title="Delete Student" 
+                                            onclick="confirmDelete('<%= student._id %>', '<%= student.name %>')">
+                                        <i class="feather-trash-2"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="7" class="no-data">No students found</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Delete confirmation modal -->
+<div class="modal" id="deleteModal">
+    <div class="modal-content animate-pop-in">
+        <div class="modal-header">
+            <h3>Confirm Deletion</h3>
+            <button class="close-btn" onclick="closeModal()">
+                <i class="feather-x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete <span id="studentName"></span>?</p>
+            <p class="warning">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn secondary-btn" onclick="closeModal()">Cancel</button>
+            <form id="deleteForm" method="post">
+                <button type="submit" class="btn danger-btn">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Search functionality
+    document.getElementById('studentSearch').addEventListener('input', function() {
+        const searchValue = this.value.toLowerCase();
+        const tableRows = document.querySelectorAll('.data-table tbody tr');
+        
+        tableRows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            if (text.includes(searchValue)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+    
+    // Delete confirmation modal
+    function confirmDelete(id, name) {
+        document.getElementById('studentName').textContent = name;
+        document.getElementById('deleteForm').action = `/students/delete/${id}`;
+        document.getElementById('deleteModal').classList.add('show');
+        document.body.classList.add('modal-open');
+    }
+    
+    function closeModal() {
+        document.getElementById('deleteModal').classList.remove('show');
+        document.body.classList.remove('modal-open');
+    }
+    
+    // Close modal if clicked outside
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('deleteModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,21 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "A complete Student Attendance System with MVC architecture using Node.js, Express, MongoDB, and EJS with email notifications and animated UI.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "feather-icons": "^4.29.2",
+    "mongodb-memory-server": "^10.1.4",
+    "mongoose": "^8.14.1",
+    "nodemailer": "^7.0.2",
+    "path": "^0.12.7"
+  }
+}

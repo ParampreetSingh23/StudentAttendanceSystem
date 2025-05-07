@@ -1,0 +1,115 @@
+<%- include('./partials/header') %>
+
+<div class="hero-section">
+    <div class="hero-content animate-fade-in">
+        <h1 class="title">Student Attendance System</h1>
+        <p class="subtitle">Efficiently track and manage student attendance with our modern system</p>
+        
+        <div class="stats-container animate-slide-up">
+            <div class="stats-card" id="total-students">
+                <div class="stats-icon">
+                    <i class="feather-users"></i>
+                </div>
+                <div class="stats-info">
+                    <h3>0</h3>
+                    <p>Total Students</p>
+                </div>
+            </div>
+            
+            <div class="stats-card" id="present-today">
+                <div class="stats-icon present">
+                    <i class="feather-check-circle"></i>
+                </div>
+                <div class="stats-info">
+                    <h3>0</h3>
+                    <p>Present Today</p>
+                </div>
+            </div>
+            
+            <div class="stats-card" id="absent-today">
+                <div class="stats-icon absent">
+                    <i class="feather-x-circle"></i>
+                </div>
+                <div class="stats-info">
+                    <h3>0</h3>
+                    <p>Absent Today</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="action-buttons animate-slide-up">
+            <a href="/students" class="btn primary-btn">
+                <i class="feather-list"></i> View Students
+            </a>
+            <a href="/attendance/mark" class="btn accent-btn">
+                <i class="feather-clipboard"></i> Mark Attendance
+            </a>
+            <a href="/attendance/view" class="btn secondary-btn">
+                <i class="feather-calendar"></i> View Records
+            </a>
+        </div>
+    </div>
+</div>
+
+<section class="features-section animate-fade-in">
+    <h2>Key Features</h2>
+    
+    <div class="features-grid">
+        <div class="feature-card animate-pop-in">
+            <div class="feature-icon">
+                <i class="feather-user-plus"></i>
+            </div>
+            <h3>Student Management</h3>
+            <p>Add, update, and manage student profiles with ease</p>
+        </div>
+        
+        <div class="feature-card animate-pop-in" style="animation-delay: 0.2s;">
+            <div class="feature-icon">
+                <i class="feather-check-square"></i>
+            </div>
+            <h3>Attendance Tracking</h3>
+            <p>Mark and track daily attendance for all students</p>
+        </div>
+        
+        <div class="feature-card animate-pop-in" style="animation-delay: 0.4s;">
+            <div class="feature-icon">
+                <i class="feather-mail"></i>
+            </div>
+            <h3>Email Notifications</h3>
+            <p>Automatic email alerts when attendance is marked</p>
+        </div>
+        
+        <div class="feature-card animate-pop-in" style="animation-delay: 0.6s;">
+            <div class="feature-icon">
+                <i class="feather-bar-chart-2"></i>
+            </div>
+            <h3>Statistics</h3>
+            <p>View attendance insights and statistics</p>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Fetch attendance statistics when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('/attendance/stats')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.querySelector('#total-students h3').textContent = data.stats.totalStudents;
+                    document.querySelector('#present-today h3').textContent = data.stats.present;
+                    document.querySelector('#absent-today h3').textContent = data.stats.absent;
+                    
+                    // Add animation class to numbers
+                    document.querySelectorAll('.stats-card h3').forEach(el => {
+                        el.classList.add('animate-number');
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching stats:', error);
+            });
+    });
+</script>
+
+<%- include('./partials/footer') %>

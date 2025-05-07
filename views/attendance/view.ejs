@@ -1,0 +1,353 @@
+<%- include('../partials/header') %>
+
+<div class="page-container animate-fade-in">
+    <div class="page-header">
+        <h1>Attendance Records</h1>
+        <div class="header-actions">
+            <a href="/attendance/mark" class="btn primary-btn">
+                <i class="feather-edit"></i> Mark Attendance
+            </a>
+            <a href="/" class="btn outline-btn">
+                <i class="feather-home"></i> Home
+            </a>
+        </div>
+    </div>
+    
+    <% if (locals.error) { %>
+        <div class="alert alert-error animate-shake">
+            <i class="feather-alert-circle"></i>
+            <%= error %>
+        </div>
+    <% } %>
+    
+    <div class="card filter-card animate-slide-up">
+        <form id="filterForm" action="/attendance/view" method="get" class="filter-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date" value="<%= selectedDate %>">
+                </div>
+                
+                <div class="form-group">
+                    <label for="studentId">Student</label>
+                    <select id="studentId" name="studentId">
+                        <option value="">All Students</option>
+                        <% if (students && students.length > 0) { %>
+                            <% students.forEach(student => { %>
+                                <option value="<%= student._id %>" 
+                                    <%= selectedStudent === student._id.toString() ? 'selected' : '' %>>
+                                    <%= student.name %> (<%= student.rollNumber %>)
+                                </option>
+                            <% }); %>
+                        <% } %>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn primary-btn">
+                        <i class="feather-filter"></i> Apply Filters
+                    </button>
+                    <button type="button" id="clearFilters" class="btn secondary-btn">
+                        <i class="feather-x"></i> Clear Filters
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="card attendance-records-card animate-slide-up" style="animation-delay: 0.2s;">
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Student</th>
+                        <th>Roll Number</th>
+                        <th>Status</th>
+                        <th>Notes</th>
+                        <th>Marked By</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (attendance && attendance.length > 0) { %>
+                        <% attendance.forEach(record => { %>
+                            <tr class="animate-fade-in-row" data-id="<%= record._id %>">
+                                <td><%= new Date(record.date).toLocaleDateString() %></td>
+                                <td><%= record.student.name %></td>
+                                <td><%= record.student.rollNumber %></td>
+                                <td>
+                                    <span class="status-badge <%= record.status %>">
+                                        <%= record.status.charAt(0).toUpperCase() + record.status.slice(1) %>
+                                    </span>
+                                </td>
+                                <td><%= record.notes || '-' %></td>
+                                <td><%= record.markedBy %></td>
+                                <td class="actions">
+                                    <button class="action-btn edit-btn" title="Edit Attendance" 
+                                            onclick="showEditModal('<%= record._id %>', '<%= record.status %>', '<%= record.notes %>', '<%= record.student.name %>')">
+                                        <i class="feather-edit-2"></i>
+                                    </button>
+                                    <button class="action-btn delete-btn" title="Delete Record" 
+                                            onclick="showDeleteModal('<%= record._id %>', '<%= record.student.name %>')">
+                                        <i class="feather-trash-2"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="7" class="no-data">No attendance records found</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Attendance Modal -->
+<div class="modal" id="editModal">
+    <div class="modal-content animate-pop-in">
+        <div class="modal-header">
+            <h3>Edit Attendance</h3>
+            <button class="close-btn" onclick="closeModal('editModal')">
+                <i class="feather-x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>Update attendance for <span id="studentNameEdit"></span></p>
+            
+            <div class="form-group">
+                <label for="statusEdit">Status</label>
+                <select id="statusEdit" class="status-select">
+                    <option value="present">Present</option>
+                    <option value="absent">Absent</option>
+                    <option value="late">Late</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="notesEdit">Notes (Optional)</label>
+                <textarea id="notesEdit" rows="3"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn secondary-btn" onclick="closeModal('editModal')">Cancel</button>
+            <button id="saveAttendanceBtn" class="btn primary-btn">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal" id="deleteModal">
+    <div class="modal-content animate-pop-in">
+        <div class="modal-header">
+            <h3>Confirm Deletion</h3>
+            <button class="close-btn" onclick="closeModal('deleteModal')">
+                <i class="feather-x"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete the attendance record for <span id="studentNameDelete"></span>?</p>
+            <p class="warning">This action cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn secondary-btn" onclick="closeModal('deleteModal')">Cancel</button>
+            <button id="deleteAttendanceBtn" class="btn danger-btn">Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- Success notification -->
+<div class="notification success-notification" id="successNotification">
+    <i class="feather-check-circle"></i>
+    <span>Operation completed successfully!</span>
+</div>
+
+<!-- Error notification -->
+<div class="notification error-notification" id="errorNotification">
+    <i class="feather-alert-circle"></i>
+    <span id="errorMessage">An error occurred.</span>
+</div>
+
+<script>
+    // Clear filters
+    document.getElementById('clearFilters').addEventListener('click', function() {
+        document.getElementById('date').value = '';
+        document.getElementById('studentId').value = '';
+        document.getElementById('filterForm').submit();
+    });
+    
+    // Show edit modal
+    function showEditModal(id, status, notes, studentName) {
+        document.getElementById('studentNameEdit').textContent = studentName;
+        document.getElementById('statusEdit').value = status;
+        document.getElementById('notesEdit').value = notes;
+        
+        const saveBtn = document.getElementById('saveAttendanceBtn');
+        saveBtn.onclick = function() {
+            updateAttendance(id);
+        };
+        
+        document.getElementById('editModal').classList.add('show');
+        document.body.classList.add('modal-open');
+    }
+    
+    // Show delete modal
+    function showDeleteModal(id, studentName) {
+        document.getElementById('studentNameDelete').textContent = studentName;
+        
+        const deleteBtn = document.getElementById('deleteAttendanceBtn');
+        deleteBtn.onclick = function() {
+            deleteAttendance(id);
+        };
+        
+        document.getElementById('deleteModal').classList.add('show');
+        document.body.classList.add('modal-open');
+    }
+    
+    // Close modal
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('show');
+        document.body.classList.remove('modal-open');
+    }
+    
+    // Update attendance
+    function updateAttendance(id) {
+        const status = document.getElementById('statusEdit').value;
+        const notes = document.getElementById('notesEdit').value;
+        
+        const saveBtn = document.getElementById('saveAttendanceBtn');
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="feather-loader spinning"></i> Saving...';
+        
+        fetch(`/attendance/update/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status, notes })
+        })
+        .then(response => response.json())
+        .then(data => {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = 'Save Changes';
+            
+            if (data.success) {
+                // Update row in the table
+                const row = document.querySelector(`tr[data-id="${id}"]`);
+                if (row) {
+                    const statusCell = row.querySelector('td:nth-child(4)');
+                    const notesCell = row.querySelector('td:nth-child(5)');
+                    
+                    statusCell.innerHTML = `
+                        <span class="status-badge ${status}">
+                            ${status.charAt(0).toUpperCase() + status.slice(1)}
+                        </span>
+                    `;
+                    notesCell.textContent = notes || '-';
+                    
+                    // Add highlight animation
+                    row.classList.add('highlight-row');
+                    setTimeout(() => {
+                        row.classList.remove('highlight-row');
+                    }, 2000);
+                }
+                
+                closeModal('editModal');
+                showSuccess('Attendance updated successfully!');
+            } else {
+                showError(data.error || 'Failed to update attendance');
+            }
+        })
+        .catch(error => {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = 'Save Changes';
+            showError('An error occurred. Please try again.');
+            console.error('Error:', error);
+        });
+    }
+    
+    // Delete attendance
+    function deleteAttendance(id) {
+        const deleteBtn = document.getElementById('deleteAttendanceBtn');
+        deleteBtn.disabled = true;
+        deleteBtn.innerHTML = '<i class="feather-loader spinning"></i> Deleting...';
+        
+        fetch(`/attendance/delete/${id}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            deleteBtn.disabled = false;
+            deleteBtn.innerHTML = 'Delete';
+            
+            if (data.success) {
+                // Remove row from the table
+                const row = document.querySelector(`tr[data-id="${id}"]`);
+                if (row) {
+                    row.classList.add('animate-fade-out');
+                    setTimeout(() => {
+                        row.remove();
+                        
+                        // If no rows left, show "no data" message
+                        const tbody = document.querySelector('.data-table tbody');
+                        if (tbody.querySelectorAll('tr:not(.no-data)').length === 0) {
+                            const noDataRow = document.createElement('tr');
+                            noDataRow.innerHTML = '<td colspan="7" class="no-data">No attendance records found</td>';
+                            tbody.appendChild(noDataRow);
+                        }
+                    }, 300);
+                }
+                
+                closeModal('deleteModal');
+                showSuccess('Attendance record deleted successfully!');
+            } else {
+                showError(data.error || 'Failed to delete attendance record');
+            }
+        })
+        .catch(error => {
+            deleteBtn.disabled = false;
+            deleteBtn.innerHTML = 'Delete';
+            showError('An error occurred. Please try again.');
+            console.error('Error:', error);
+        });
+    }
+    
+    // Show success notification
+    function showSuccess(message) {
+        const notification = document.getElementById('successNotification');
+        notification.querySelector('span').textContent = message;
+        notification.classList.add('show');
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
+    
+    // Show error notification
+    function showError(message) {
+        const notification = document.getElementById('errorNotification');
+        notification.querySelector('span').textContent = message;
+        notification.classList.add('show');
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
+    
+    // Close modals if clicked outside
+    window.addEventListener('click', function(event) {
+        const editModal = document.getElementById('editModal');
+        const deleteModal = document.getElementById('deleteModal');
+        
+        if (event.target === editModal) {
+            closeModal('editModal');
+        } else if (event.target === deleteModal) {
+            closeModal('deleteModal');
+        }
+    });
+</script>
+
+<%- include('../partials/footer') %>
