@@ -1,6 +1,6 @@
 const Student = require('../models/Student');
 
-// Display list of all students
+
 exports.getAllStudents = async (req, res) => {
     try {
         const students = await Student.find().sort({ name: 1 });
@@ -49,7 +49,7 @@ exports.createStudent = async (req, res) => {
             });
         }
         
-        // Check if student with roll number already exists
+      
         const existingStudent = await Student.findOne({ rollNumber });
         if (existingStudent) {
             return res.render('students/add', {
@@ -59,7 +59,7 @@ exports.createStudent = async (req, res) => {
             });
         }
         
-        // Create new student
+       
         const student = new Student({
             rollNumber,
             name,
@@ -81,7 +81,7 @@ exports.createStudent = async (req, res) => {
     }
 };
 
-// Display student edit form
+
 exports.getEditStudentForm = async (req, res) => {
     try {
         const student = await Student.findById(req.params.id);
@@ -99,12 +99,12 @@ exports.getEditStudentForm = async (req, res) => {
     }
 };
 
-// Handle student update on POST
+
 exports.updateStudent = async (req, res) => {
     try {
         const { rollNumber, name, email, phone, course, semester } = req.body;
         
-        // Simple validation
+        
         let errors = [];
         if (!rollNumber) errors.push('Roll number is required');
         if (!name) errors.push('Name is required');
@@ -124,7 +124,7 @@ exports.updateStudent = async (req, res) => {
             });
         }
         
-        // Check if roll number exists for another student
+        
         const existingStudent = await Student.findOne({ 
             rollNumber, 
             _id: { $ne: req.params.id } 
@@ -141,7 +141,7 @@ exports.updateStudent = async (req, res) => {
             });
         }
         
-        // Update student
+       
         const student = await Student.findByIdAndUpdate(req.params.id, {
             rollNumber,
             name,
@@ -169,7 +169,6 @@ exports.updateStudent = async (req, res) => {
     }
 };
 
-// Handle student delete
 exports.deleteStudent = async (req, res) => {
     try {
         await Student.findByIdAndDelete(req.params.id);
@@ -180,7 +179,7 @@ exports.deleteStudent = async (req, res) => {
     }
 };
 
-// Get student by ID
+
 exports.getStudentById = async (req, res) => {
     try {
         const student = await Student.findById(req.params.id);

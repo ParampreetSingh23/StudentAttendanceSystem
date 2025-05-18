@@ -1,66 +1,15 @@
 const nodemailer = require('nodemailer');
 
-// Try loading SendGrid if available
-let sendgrid;
-try {
-    sendgrid = require('@sendgrid/mail');
-} catch (err) {
-    console.log('SendGrid not available, will try other email methods');
-}
 
-// Create email transporter
-let transporter;
-
-// Function to create appropriate email transport based on available configurations
-async function createEmailTransport() {
-    try {
-        // Check for SendGrid API key
-        if (process.env.SENDGRID_API_KEY && sendgrid) {
-            // Configure SendGrid
-            sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
-            console.log('Using SendGrid email transport');
-            return true;
-        } 
-        // Check for SMTP configuration (e.g., Gmail)
-        else if (process.env.EMAIL_HOST && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-            // Create SMTP transporter
-            transporter = nodemailer.createTransport({
-                host: process.env.EMAIL_HOST,
-                port: process.env.EMAIL_PORT || 587,
-                secure: process.env.EMAIL_SECURE === 'true',
-                auth: {
-                    user: process.env.EMAIL_USER,
-                    pass: process.env.EMAIL_PASS
-                }
-            });
-            console.log('Using SMTP email transport');
-            return true;
-        } 
-        // Fall back to mock transport for development
-        else {
-            // Create a mock transporter
-            transporter = nodemailer.createTransport({
-                jsonTransport: true // doesn't send emails, just returns the email object
-            });
-            console.log('Using mock email transport (no emails will be sent)');
-            console.log('To use real emails, set up SendGrid or SMTP configuration');
-            return false;
-        }
-    } catch (err) {
-        console.log('Error setting up email transport:', err);
-        // Fall back to mock transport
-        transporter = nodemailer.createTransport({
-            jsonTransport: true
-        });
-        console.log('Falling back to mock email transport');
-        return false;
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'parampreetsinghlall@gmail.com',  
+        pass: 'nbau rppn cqsw nwce'   
     }
-}
+});
 
-// Initialize the email transport
-createEmailTransport();
 
-// Helper function to generate email HTML
 function generateEmailHTML(studentName, date, status, isUpdate = false) {
     const formattedDate = new Date(date).toLocaleDateString('en-US', {
         weekday: 'long',
@@ -68,7 +17,7 @@ function generateEmailHTML(studentName, date, status, isUpdate = false) {
         month: 'long',
         day: 'numeric'
     });
-    
+
     const statusText = status.charAt(0).toUpperCase() + status.slice(1);
     const title = isUpdate ? 'Attendance Update Notification' : 'Attendance Notification';
     const message = isUpdate 
@@ -108,7 +57,7 @@ function generateEmailHTML(studentName, date, status, isUpdate = false) {
     `;
 }
 
-// Function to send attendance notification email
+
 exports.sendAttendanceNotification = async (email, studentName, date, status) => {
     try {
         const formattedDate = new Date(date).toLocaleDateString('en-US', {
@@ -122,38 +71,22 @@ exports.sendAttendanceNotification = async (email, studentName, date, status) =>
         const html = generateEmailHTML(studentName, date, status, false);
         
         const mailOptions = {
-            from: process.env.EMAIL_FROM || '"Attendance System" <attendance.system.demo@gmail.com>',
+            from: 'parampreetsinghlall@gmail.com', 
             to: email,
             subject: `Attendance Marked: ${statusText} on ${formattedDate}`,
             html: html
         };
         
-        // Send email using SendGrid if available
-        if (process.env.SENDGRID_API_KEY && sendgrid) {
-            const msg = {
-                to: email,
-                from: process.env.EMAIL_FROM || 'attendance.system.demo@gmail.com',
-                subject: `Attendance Marked: ${statusText} on ${formattedDate}`,
-                html: html
-            };
-            
-            await sendgrid.send(msg);
-            console.log('SendGrid email sent successfully');
-            return { messageId: 'sendgrid_message' };
-        } 
-        // Otherwise use nodemailer
-        else {
-            const info = await transporter.sendMail(mailOptions);
-            console.log('Email sent:', info.messageId);
-            return info;
-        }
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email sent:', info.messageId);
+        return info;
     } catch (err) {
         console.error('Error sending email:', err);
         throw err;
     }
 };
 
-// Function to send attendance update notification email
+
 exports.sendAttendanceUpdateNotification = async (email, studentName, date, status) => {
     try {
         const formattedDate = new Date(date).toLocaleDateString('en-US', {
@@ -167,31 +100,15 @@ exports.sendAttendanceUpdateNotification = async (email, studentName, date, stat
         const html = generateEmailHTML(studentName, date, status, true);
         
         const mailOptions = {
-            from: process.env.EMAIL_FROM || '"Attendance System" <attendance.system.demo@gmail.com>',
+            from: '"parampreetsinghlall@gmail.com',  // Replace with your Gmail email address
             to: email,
             subject: `Attendance Updated: ${statusText} on ${formattedDate}`,
             html: html
         };
         
-        // Send email using SendGrid if available
-        if (process.env.SENDGRID_API_KEY && sendgrid) {
-            const msg = {
-                to: email,
-                from: process.env.EMAIL_FROM || 'attendance.system.demo@gmail.com',
-                subject: `Attendance Updated: ${statusText} on ${formattedDate}`,
-                html: html
-            };
-            
-            await sendgrid.send(msg);
-            console.log('SendGrid update email sent successfully');
-            return { messageId: 'sendgrid_message' };
-        } 
-        // Otherwise use nodemailer
-        else {
-            const info = await transporter.sendMail(mailOptions);
-            console.log('Update email sent:', info.messageId);
-            return info;
-        }
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Update email sent:', info.messageId);
+        return info;
     } catch (err) {
         console.error('Error sending update email:', err);
         throw err;

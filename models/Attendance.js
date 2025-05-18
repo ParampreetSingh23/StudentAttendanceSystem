@@ -30,7 +30,7 @@ const attendanceSchema = new mongoose.Schema({
     }
 });
 
-// Create compound index for student + date to prevent duplicate attendance records
+
 attendanceSchema.index({ student: 1, date: 1 }, { unique: true });
 
 const Attendance = mongoose.model('Attendance', attendanceSchema);

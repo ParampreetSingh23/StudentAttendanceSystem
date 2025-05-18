@@ -2,14 +2,14 @@ const Attendance = require('../models/Attendance');
 const Student = require('../models/Student');
 const mailer = require('../utils/mailer');
 
-// Display attendance marking page
+
 exports.getMarkAttendancePage = async (req, res) => {
     try {
         const students = await Student.find().sort({ name: 1 });
         res.render('attendance/mark', {
             title: 'Mark Attendance',
             students,
-            date: new Date().toISOString().split('T')[0] // Current date in YYYY-MM-DD format
+            date: new Date().toISOString().split('T')[0] 
         });
     } catch (err) {
         console.error('Error fetching students for attendance:', err);
@@ -22,7 +22,7 @@ exports.getMarkAttendancePage = async (req, res) => {
     }
 };
 
-// Handle attendance marking on POST
+
 exports.markAttendance = async (req, res) => {
     try {
         const { date, markedBy, attendanceData } = req.body;
@@ -37,14 +37,14 @@ exports.markAttendance = async (req, res) => {
             });
         }
 
-        // Process each attendance record
+       
         const operations = [];
         const emailPromises = [];
 
         for (const record of parsedData) {
             const { studentId, status, notes } = record;
             
-            // Create or update attendance record
+            
             operations.push({
                 updateOne: {
                     filter: { student: studentId, date: new Date(date) },
@@ -59,10 +59,10 @@ exports.markAttendance = async (req, res) => {
                 }
             });
             
-            // Get student info for email
+            
             const student = await Student.findById(studentId);
             if (student) {
-                // Send email notification
+                
                 emailPromises.push(
                     mailer.sendAttendanceNotification(
                         student.email,
@@ -74,10 +74,10 @@ exports.markAttendance = async (req, res) => {
             }
         }
 
-        // Execute all attendance update operations
+        
         await Attendance.bulkWrite(operations);
         
-        // Wait for all emails to be sent
+        
         await Promise.allSettled(emailPromises);
         
         res.json({ 
@@ -93,13 +93,13 @@ exports.markAttendance = async (req, res) => {
     }
 };
 
-// Display attendance records view page
+
 exports.getViewAttendancePage = async (req, res) => {
     try {
         const { date, studentId } = req.query;
         let query = {};
         
-        // Apply filters if provided
+        
         if (date) {
             const startDate = new Date(date);
             startDate.setHours(0, 0, 0, 0);
@@ -114,7 +114,7 @@ exports.getViewAttendancePage = async (req, res) => {
             query.student = studentId;
         }
         
-        // Get all students for the filter dropdown
+        
         const students = await Student.find().sort({ name: 1 });
         
         // Get attendance records with student details
@@ -142,7 +142,7 @@ exports.getViewAttendancePage = async (req, res) => {
     }
 };
 
-// Update attendance record
+
 exports.updateAttendance = async (req, res) => {
     try {
         const { status, notes } = req.body;
@@ -167,7 +167,7 @@ exports.updateAttendance = async (req, res) => {
             });
         }
         
-        // Send email notification about the update
+        
         await mailer.sendAttendanceUpdateNotification(
             attendance.student.email,
             attendance.student.name,
@@ -189,7 +189,7 @@ exports.updateAttendance = async (req, res) => {
     }
 };
 
-// Delete attendance record
+
 exports.deleteAttendance = async (req, res) => {
     try {
         const attendance = await Attendance.findByIdAndDelete(req.params.id);
@@ -214,7 +214,7 @@ exports.deleteAttendance = async (req, res) => {
     }
 };
 
-// Get attendance statistics
+
 exports.getAttendanceStats = async (req, res) => {
     try {
         const totalStudents = await Student.countDocuments();
