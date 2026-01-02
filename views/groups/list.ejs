@@ -1,0 +1,77 @@
+<%- include('../partials/header') %>
+
+    <div class="container animate-fade-in">
+        <div class="header-flex">
+            <h1>My Classes</h1>
+            <div class="actions">
+                <a href="/students/import" class="btn secondary-btn">
+                    <i data-feather="upload"></i> Import Students
+                </a>
+                <a href="/groups/create" class="btn primary-btn">
+                    <i data-feather="plus"></i> Create New Class
+                </a>
+            </div>
+        </div>
+
+        <% if (error) { %>
+            <div class="alert error">
+                <%= error %>
+            </div>
+            <% } %>
+
+                <% if (groups.length===0) { %>
+                    <div class="empty-state animate-slide-up">
+                        <div class="empty-icon">
+                            <i data-feather="layers"></i>
+                        </div>
+                        <h3>No Classes Yet</h3>
+                        <p>Create your first class to start managing students.</p>
+                        <a href="/groups/create" class="btn primary-btn">Create Class</a>
+                    </div>
+                    <% } else { %>
+                        <div class="grid-container animate-slide-up">
+                            <% groups.forEach((group, index)=> { %>
+                                <div class="card group-card" style="animation-delay: <%= index * 0.1 %>s">
+                                    <div class="card-header">
+                                        <h3>
+                                            <%= group.name %>
+                                        </h3>
+
+                                        <% if(group.schedule && group.schedule.length> 0) { %>
+                                            <span class="badge">
+                                                <%= group.schedule.join(', ') %>
+                            </span>
+                        <% } %>
+                    </div>
+                    
+                    <div class="card-body">
+                        <% if(group.description) { %>
+                            <p class="description"><%= group.description %></p>
+                        <% } %>
+                        
+                        <div class="stats-row">
+                            <div class="stat">
+                                <i data-feather="users"></i>
+                                <span><%= group.studentCount || 0 %> Students</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <a href="/groups/<%= group._id %>" class="btn secondary-btn btn-block">
+                            View Dashboard
+                        </a>
+                        <form action="/groups/delete/<%= group._id %>" method="POST" onsubmit="return confirm(' Are you
+                                                    sure? All students in this class will be deleted.');"
+                                                    style="margin-top: 10px;">
+                                                    <button type="submit"
+                                                        class="btn danger-btn btn-sm btn-block">Delete</button>
+                                                    </form>
+                                    </div>
+                                </div>
+                                <% }); %>
+                        </div>
+                        <% } %>
+    </div>
+
+    <%- include('../partials/footer') %>

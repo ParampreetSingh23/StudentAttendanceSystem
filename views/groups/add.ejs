@@ -1,0 +1,52 @@
+<%- include('../partials/header') %>
+
+ <div class="container animate-fade-in">
+  <div class="form-container" style="max-width: 600px; margin: 40px auto;">
+   <div class="form-header">
+    <h1>Create New Class</h1>
+    <p>Set up a new class or subject group</p>
+   </div>
+
+   <% if (error) { %>
+    <div class="alert error">
+     <%= error %>
+    </div>
+    <% } %>
+
+     <form action="/groups/create" method="POST">
+      <div class="form-group">
+       <label for="name">Class / Subject Name *</label>
+       <input type="text" id="name" name="name" class="form-control" placeholder="e.g. Mathematics 101" required
+        autofocus>
+      </div>
+
+      <div class="form-group">
+       <label for="description">Description (Optional)</label>
+       <textarea id="description" name="description" class="form-control" rows="3"
+        placeholder="e.g. Morning batch for Grade 10"></textarea>
+      </div>
+
+      <div class="form-group">
+       <label>Schedule (Select days)</label>
+       <div class="checkbox-group"
+        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;">
+        <% ['Mon', 'Tue' , 'Wed' , 'Thu' , 'Fri' , 'Sat' , 'Sun' ].forEach(day=> { %>
+         <label class="checkbox-container" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <input type="checkbox" name="schedule" value="<%= day %>">
+          <span>
+           <%= day %>
+          </span>
+         </label>
+         <% }) %>
+       </div>
+      </div>
+
+      <div class="form-actions">
+       <button type="submit" class="btn primary-btn btn-block">Create Class</button>
+       <a href="/groups" class="btn secondary-btn btn-block" style="text-align: center;">Cancel</a>
+      </div>
+     </form>
+  </div>
+ </div>
+
+ <%- include('../partials/footer') %>

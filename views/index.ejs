@@ -1,115 +1,139 @@
 <%- include('./partials/header') %>
 
-<div class="hero-section">
-    <div class="hero-content animate-fade-in">
-        <h1 class="title">Student Attendance System</h1>
-        <p class="subtitle">Efficiently track and manage student attendance with our modern system</p>
-        
-        <div class="stats-container animate-slide-up">
-            <div class="stats-card" id="total-students">
-                <div class="stats-icon">
-                    <i class="feather-users"></i>
+    <% if (locals.isAuthenticated && user) { %>
+        <!-- LOGGED IN DASHBOARD -->
+        <div class="container animate-fade-in" style="padding-top: 20px;">
+            <div class="hero-section"
+                style="padding: 40px 20px; text-align: left; background: var(--white); color: var(--text-color); box-shadow: var(--box-shadow); margin-bottom: 30px;">
+                <div class="header-flex" style="margin-bottom: 20px;">
+                    <div>
+                        <h1 class="title" style="color: var(--primary-color); margin-bottom: 10px;">Welcome back, <%=
+                                user.name.split(' ')[0] %>!</h1>
+                    <p class="subtitle" style="color: var(--gray-600); margin-bottom: 0;">Manage your classes and student attendance.</p>
                 </div>
-                <div class="stats-info">
-                    <h3>0</h3>
-                    <p>Total Students</p>
+                <!-- Weather or Date Widget could go here -->
+                <div class="date-widget" style="text-align: right; color: var(--gray-500);">
+                    <%= new Date().toLocaleDateString('en-US', { weekday: 'long' , year: 'numeric' , month: 'long' ,
+                                day: 'numeric' }) %>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="stats-card" id="present-today">
-                <div class="stats-icon present">
-                    <i class="feather-check-circle"></i>
-                </div>
-                <div class="stats-info">
-                    <h3>0</h3>
-                    <p>Present Today</p>
-                </div>
-            </div>
-            
-            <div class="stats-card" id="absent-today">
-                <div class="stats-icon absent">
-                    <i class="feather-x-circle"></i>
-                </div>
-                <div class="stats-info">
-                    <h3>0</h3>
-                    <p>Absent Today</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="action-buttons animate-slide-up">
-            <a href="/students" class="btn primary-btn">
-                <i class="feather-list"></i> View Students
-            </a>
-            <a href="/attendance/mark" class="btn accent-btn">
-                <i class="feather-clipboard"></i> Mark Attendance
-            </a>
-            <a href="/attendance/view" class="btn secondary-btn">
-                <i class="feather-calendar"></i> View Records
-            </a>
-        </div>
-    </div>
-</div>
 
-<section class="features-section animate-fade-in">
-    <h2>Key Features</h2>
-    
-    <div class="features-grid">
-        <div class="feature-card animate-pop-in">
-            <div class="feature-icon">
-                <i class="feather-user-plus"></i>
+                <div class="actions" style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <a href="/groups/create" class="btn primary-btn">
+                        <i class="feather-plus-circle"></i> Create New Class
+                    </a>
+                    <a href="/students/import" class="btn secondary-btn">
+                        <i class="feather-upload"></i> Import Students
+                    </a>
+                    <a href="/groups" class="btn outline-btn">
+                        <i class="feather-grid"></i> View All Classes
+                    </a>
+                </div>
             </div>
-            <h3>Student Management</h3>
-            <p>Add, update, and manage student profiles with ease</p>
-        </div>
-        
-        <div class="feature-card animate-pop-in" style="animation-delay: 0.2s;">
-            <div class="feature-icon">
-                <i class="feather-check-square"></i>
-            </div>
-            <h3>Attendance Tracking</h3>
-            <p>Mark and track daily attendance for all students</p>
-        </div>
-        
-        <div class="feature-card animate-pop-in" style="animation-delay: 0.4s;">
-            <div class="feature-icon">
-                <i class="feather-mail"></i>
-            </div>
-            <h3>Email Notifications</h3>
-            <p>Automatic email alerts when attendance is marked</p>
-        </div>
-        
-        <div class="feature-card animate-pop-in" style="animation-delay: 0.6s;">
-            <div class="feature-icon">
-                <i class="feather-bar-chart-2"></i>
-            </div>
-            <h3>Statistics</h3>
-            <p>View attendance insights and statistics</p>
-        </div>
-    </div>
-</section>
 
-<script>
-    // Fetch attendance statistics when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        fetch('/attendance/stats')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.querySelector('#total-students h3').textContent = data.stats.totalStudents;
-                    document.querySelector('#present-today h3').textContent = data.stats.present;
-                    document.querySelector('#absent-today h3').textContent = data.stats.absent;
-                    
-                    // Add animation class to numbers
-                    document.querySelectorAll('.stats-card h3').forEach(el => {
-                        el.classList.add('animate-number');
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching stats:', error);
-            });
-    });
-</script>
+            <h2 style="margin-bottom: 20px; color: var(--gray-800);">Your Recent Classes</h2>
 
-<%- include('./partials/footer') %>
+            <% if (locals.groups && groups.length> 0) { %>
+                <div class="grid-container animate-slide-up">
+                    <% groups.forEach((group, index)=> { %>
+                        <div class="card group-card" style="animation-delay: <%= index * 0.1 %>s">
+                            <div class="card-header">
+                                <h3>
+                                    <%= group.name %>
+                                </h3>
+                                <% if(group.schedule && group.schedule.length> 0) { %>
+                                    <span class="badge">
+                                        <%= group.schedule[0] %>...
+                                    </span>
+                                    <% } %>
+                            </div>
+                            <div class="card-body">
+                                <p class="description">
+                                    <%= group.description || 'No description' %>
+                                </p>
+                                <div class="stats-row">
+                                    <div class="stat">
+                                        <i class="feather-calendar"></i>
+                                        <span>Created: <%= new Date(group.createdAt).toLocaleDateString() %></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <a href="/attendance/mark?groupId=<%= group._id %>" class="btn primary-btn btn-sm"
+                                    style="margin-bottom: 8px; width: 100%;">Mark Attendance</a>
+                                <a href="/groups/<%= group._id %>"
+                                    class="btn outline-btn btn-sm btn-block">Dashboard</a>
+                            </div>
+                        </div>
+                        <% }); %>
+
+                            <!-- Quick Link to All -->
+                            <% if(groups.length>= 3) { %>
+                                <div class="card group-card"
+                                    style="display: flex; align-items: center; justify-content: center; background: rgba(67, 97, 238, 0.05); border: 2px dashed var(--primary-color); cursor: pointer;"
+                                    onclick="window.location.href='/groups'">
+                                    <div style="text-align: center; color: var(--primary-color);">
+                                        <i class="feather-arrow-right-circle"
+                                            style="font-size: 2rem; margin-bottom: 10px;"></i>
+                                        <h3>View All Classes</h3>
+                                    </div>
+                                </div>
+                                <% } %>
+                </div>
+                <% } else { %>
+                    <div class="empty-state animate-slide-up">
+                        <div class="empty-icon"><i class="feather-layers"></i></div>
+                        <h3>No Classes Yet</h3>
+                        <p>Get started by creating your first class to track attendance.</p>
+                        <a href="/groups/create" class="btn primary-btn">Create Class</a>
+                    </div>
+                    <% } %>
+        </div>
+
+        <% } else { %>
+            <!-- LANDING PAGE (Logged Out) -->
+            <div class="hero-section animate-fade-in"
+                style="padding: 80px 0; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); text-align: center; color: white;">
+                <div class="container">
+                    <h1 style="font-size: 3rem; margin-bottom: 20px; font-weight: 700;">Student Attendance System</h1>
+                    <p style="font-size: 1.25rem; margin-bottom: 40px; opacity: 0.9;">The smartest way to track, manage,
+                        and report student attendance for your classes.</p>
+                    <div style="display: flex; justify-content: center; gap: 20px;">
+                        <a href="/login" class="btn"
+                            style="background: white; color: var(--primary-color); font-weight: 600; padding: 12px 30px;">Login</a>
+                        <a href="/register" class="btn outline-btn" style="border-color: white; color: white;">Register
+                            Now</a>
+                    </div>
+                </div>
+            </div>
+
+            <section class="features-section animate-slide-up" style="padding: 60px 0;">
+                <div class="container">
+                    <h2 style="text-align: center; margin-bottom: 50px;">Why Choose Us?</h2>
+                    <div class="grid-container">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="feather-layers"></i></div>
+                            <h3>Multiple Classes</h3>
+                            <p>Manage multiple subjects and classes independently with dedicated dashboards.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="feather-users"></i></div>
+                            <h3>Student Management</h3>
+                            <p>Easily add students or import them in bulk via CSV files.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="feather-check-circle"></i></div>
+                            <h3>Quick Attendance</h3>
+                            <p>Mark attendance in seconds with an intuitive interface. Present, Absent, or Late.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="feather-bar-chart-2"></i></div>
+                            <h3>Insightful Reports</h3>
+                            <p>View attendance history and get insights into student performance.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <% } %>
+
+                <%- include('./partials/footer') %>

@@ -1,23 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const attendanceController = require('../controllers/attendanceController');
+const isAuth = require('../middleware/isAuth');
 
 
-router.get('/mark', attendanceController.getMarkAttendancePage);
+router.get('/mark', isAuth, attendanceController.getMarkAttendancePage);
 
 
-router.post('/mark', attendanceController.markAttendance);
+router.post('/mark', isAuth, attendanceController.markAttendance);
 
 
-router.get('/view', attendanceController.getViewAttendancePage);
+router.get('/view', isAuth, attendanceController.getViewAttendancePage);
 
 
-router.post('/update/:id', attendanceController.updateAttendance);
+router.post('/update/:id', isAuth, attendanceController.updateAttendance);
 
 
-router.post('/delete/:id', attendanceController.deleteAttendance);
+router.post('/delete/:id', isAuth, attendanceController.deleteAttendance);
 
 
-router.get('/stats', attendanceController.getAttendanceStats);
+router.get('/stats', isAuth, attendanceController.getAttendanceStats);
 
 module.exports = router;

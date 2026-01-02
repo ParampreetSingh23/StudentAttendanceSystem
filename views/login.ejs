@@ -1,0 +1,35 @@
+<%- include('./partials/header') %>
+
+ <div class="container animate-fade-in">
+  <div class="form-container" style="max-width: 400px; margin: 50px auto;">
+   <h1 style="text-align: center; margin-bottom: 30px;">Login</h1>
+
+   <% if (error) { %>
+    <div class="alert error">
+     <%= error %>
+    </div>
+    <% } %>
+
+     <form action="/auth/login" method="POST">
+      <div class="form-group">
+       <label for="email">Email Address</label>
+       <input type="email" id="email" name="email" class="form-control" required autofocus>
+      </div>
+
+      <div class="form-group">
+       <label for="password">Password</label>
+       <input type="password" id="password" name="password" class="form-control" required>
+      </div>
+
+      <div class="form-actions">
+       <button type="submit" class="btn primary-btn btn-block" style="width: 100%;">Login</button>
+      </div>
+
+      <p style="text-align: center; margin-top: 20px;">
+       Don't have an account? <a href="/auth/register">Register</a>
+      </p>
+     </form>
+  </div>
+ </div>
+
+ <%- include('./partials/footer') %>

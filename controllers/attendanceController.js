@@ -1,14 +1,28 @@
 const Attendance = require('../models/Attendance');
 const Student = require('../models/Student');
+const Group = require('../models/Group');
 const mailer = require('../utils/mailer');
 
 
 exports.getMarkAttendancePage = async (req, res) => {
     try {
-        const students = await Student.find().sort({ name: 1 });
+        const { groupId } = req.query;
+        
+        if (!groupId) {
+             return res.redirect('/groups');
+        }
+
+        const group = await Group.findOne({ _id: groupId, user: req.session.user.id });
+        if (!group) {
+             return res.redirect('/groups');
+        }
+
+        const students = await Student.find({ group: groupId }).sort({ name: 1 });
+        
         res.render('attendance/mark', {
             title: 'Mark Attendance',
             students,
+            group,
             date: new Date().toISOString().split('T')[0] 
         });
     } catch (err) {
@@ -16,6 +30,7 @@ exports.getMarkAttendancePage = async (req, res) => {
         res.status(500).render('attendance/mark', {
             title: 'Mark Attendance',
             students: [],
+            group: null,
             date: new Date().toISOString().split('T')[0],
             error: 'Failed to retrieve students'
         });
@@ -96,9 +111,17 @@ exports.markAttendance = async (req, res) => {
 
 exports.getViewAttendancePage = async (req, res) => {
     try {
-        const { date, studentId } = req.query;
+        const { date, studentId, groupId } = req.query;
         let query = {};
         
+        if (!groupId) {
+            return res.redirect('/groups');
+        }
+
+        const group = await Group.findOne({ _id: groupId, user: req.session.user.id });
+        if (!group) {
+             return res.redirect('/groups');
+        }
         
         if (date) {
             const startDate = new Date(date);
@@ -110,12 +133,19 @@ exports.getViewAttendancePage = async (req, res) => {
             query.date = { $gte: startDate, $lte: endDate };
         }
         
+        // Filter students by Group
+        const userStudents = await Student.find({ group: groupId }).sort({ name: 1 });
+        const userStudentIds = userStudents.map(s => s._id);
+
         if (studentId) {
-            query.student = studentId;
+             if (userStudentIds.some(id => id.toString() === studentId)) {
+                query.student = studentId;
+            } else {
+                query.student = null; 
+            }
+        } else {
+            query.student = { $in: userStudentIds };
         }
-        
-        
-        const students = await Student.find().sort({ name: 1 });
         
         // Get attendance records with student details
         const attendance = await Attendance.find(query)
@@ -125,9 +155,10 @@ exports.getViewAttendancePage = async (req, res) => {
         res.render('attendance/view', {
             title: 'View Attendance',
             attendance,
-            students,
+            students: userStudents,
             selectedDate: date || '',
-            selectedStudent: studentId || ''
+            selectedStudent: studentId || '',
+            group
         });
     } catch (err) {
         console.error('Error fetching attendance records:', err);
@@ -137,6 +168,7 @@ exports.getViewAttendancePage = async (req, res) => {
             students: [],
             selectedDate: '',
             selectedStudent: '',
+            group: null,
             error: 'Failed to retrieve attendance records'
         });
     }
@@ -217,14 +249,16 @@ exports.deleteAttendance = async (req, res) => {
 
 exports.getAttendanceStats = async (req, res) => {
     try {
-        const totalStudents = await Student.countDocuments();
+        const userStudentIds = await Student.find({ user: req.session.user.id }).distinct('_id');
+        const totalStudents = await Student.countDocuments({ user: req.session.user.id });
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
         const todayAttendance = await Attendance.aggregate([
             { 
                 $match: { 
-                    date: { $gte: today }
+                    date: { $gte: today },
+                    student: { $in: userStudentIds }
                 }
             },
             {

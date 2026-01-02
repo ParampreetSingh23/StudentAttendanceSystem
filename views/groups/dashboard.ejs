@@ -1,0 +1,131 @@
+<%- include('../partials/header') %>
+
+  <div class="container animate-fade-in">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb" style="margin-bottom: 20px;">
+      <a href="/groups" class="text-muted">My Classes</a>
+      <span class="separator">/</span>
+      <span class="active">
+        <%= group.name %>
+      </span>
+    </div>
+
+    <!-- Header -->
+    <div class="header-flex">
+      <div>
+        <h1>
+          <%= group.name %>
+        </h1>
+        <p class="text-muted">
+          <%= group.description || 'No description' %>
+        </p>
+
+        <% if(group.schedule && group.schedule.length> 0) { %>
+          <div class="schedule-badges" style="margin-top: 10px;">
+            <% group.schedule.forEach(day=> { %>
+              <span class="badge"
+                style="background: var(--primary-light); color: var(--primary-color); padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; margin-right: 5px;">
+                <%= day %>
+              </span>
+              <% }) %>
+          </div>
+          <% } %>
+      </div>
+
+      <div class="actions">
+        <a href="/attendance/mark?groupId=<%= group._id %>" class="btn accent-btn">
+          <i data-feather="check-circle"></i> Mark Attendance
+        </a>
+        <a href="/students/import?groupId=<%= group._id %>" class="btn secondary-btn">
+          <i data-feather="upload"></i> Import CSV
+        </a>
+        <a href="/students/add?groupId=<%= group._id %>" class="btn primary-btn">
+          <i data-feather="user-plus"></i> Add Student
+        </a>
+      </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stats-container animate-slide-up" style="margin-top: 30px;">
+      <div class="stats-card">
+        <div class="stats-icon">
+          <i data-feather="users"></i>
+        </div>
+        <div class="stats-info">
+          <h3>
+            <%= students.length %>
+          </h3>
+          <p>Total Students</p>
+        </div>
+      </div>
+
+      <div class="stats-card">
+        <div class="stats-icon present">
+          <i data-feather="calendar"></i>
+        </div>
+        <div class="stats-info">
+          <h3>
+            <%= group.createdAt.toLocaleDateString() %>
+          </h3>
+          <p>Class Created</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Students List Section -->
+    <section class="students-section animate-slide-up" style="margin-top: 40px; animation-delay: 0.1s;">
+      <div class="header-flex">
+        <h2>Students (<%= students.length %>)</h2>
+        <a href="/attendance/view?groupId=<%= group._id %>" class="btn secondary-btn btn-sm">
+          View Attendance Records
+        </a>
+      </div>
+
+      <% if(students.length===0) { %>
+        <div class="empty-state">
+          <p>No students in this class yet.</p>
+        </div>
+        <% } else { %>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Roll No</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% students.forEach(student=> { %>
+                  <tr>
+                    <td><span class="badge">
+                        <%= student.rollNumber %>
+                      </span></td>
+                    <td>
+                      <%= student.name %>
+                    </td>
+                    <td>
+                      <%= student.email %>
+                    </td>
+                    <td>
+                      <%= student.phone %>
+                    </td>
+                    <td>
+                      <div class="action-buttons-sm">
+                        <a href="/students/edit/<%= student._id %>" class="btn-icon" title="Edit">
+                          <i data-feather="edit-2"></i>
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                  <% }) %>
+              </tbody>
+            </table>
+          </div>
+          <% } %>
+    </section>
+  </div>
+
+  <%- include('../partials/footer') %>

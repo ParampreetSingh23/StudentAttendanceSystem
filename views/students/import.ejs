@@ -1,0 +1,191 @@
+<%- include('../partials/header') %>
+
+ <div class="page-container animate-fade-in">
+  <div class="page-header">
+   <h1>Import Students</h1>
+   <div class="header-actions">
+    <a href="/groups" class="btn outline-btn">
+     <i class="feather-arrow-left"></i> Back to Classes
+    </a>
+    <a href="/students" class="btn secondary-btn">
+     <i class="feather-list"></i> Student List
+    </a>
+   </div>
+  </div>
+
+  <% if (locals.error && error) { %>
+   <div class="alert alert-error animate-shake">
+    <i class="feather-alert-circle"></i>
+    <div style="white-space: pre-wrap;">
+     <%= error %>
+    </div>
+   </div>
+   <% } %>
+
+    <% if (locals.success && success) { %>
+     <div class="alert alert-success animate-slide-up">
+      <i class="feather-check-circle"></i>
+      <%= success %>
+     </div>
+     <% } %>
+
+      <div class="grid-container" style="grid-template-columns: 2fr 1fr; align-items: start;">
+
+       <div class="card form-card animate-slide-up">
+        <div class="card-header">
+         <h3>Bulk Import via CSV</h3>
+         <p>Upload a CSV file to add multiple students at once.</p>
+        </div>
+
+        <form action="/students/import" method="post" enctype="multipart/form-data" class="student-form">
+
+         <div class="form-row">
+          <div class="form-group" style="width: 100%;">
+           <label for="group">Target Class / Group *</label>
+           <select id="group" name="group" required>
+            <option value="" disabled <%=!locals.selectedGroupId ? 'selected' : '' %>>Select Class</option>
+            <% if(locals.groups) { %>
+             <% groups.forEach(group=> { %>
+              <option value="<%= group._id %>" <%=(locals.selectedGroupId && selectedGroupId==group._id.toString())
+               ? 'selected' : '' %>>
+               <%= group.name %>
+              </option>
+              <% }); %>
+               <% } %>
+           </select>
+          </div>
+         </div>
+
+         <div class="form-row">
+          <div class="form-group" style="width: 100%;">
+           <label for="file">CSV File *</label>
+           <div class="file-upload-wrapper">
+            <input type="file" id="file" name="file" accept=".csv" required>
+            <div class="file-upload-info">
+             <i class="feather-upload-cloud"></i>
+             <span>Click to upload or drag and drop</span>
+             <span class="filename" id="filename"></span>
+            </div>
+           </div>
+          </div>
+         </div>
+
+         <div class="form-actions">
+          <button type="submit" class="btn primary-btn submit-btn" id="importBtn">
+           <i class="feather-upload"></i> Import Students
+          </button>
+         </div>
+        </form>
+       </div>
+
+       <div class="card info-card animate-slide-up" style="animation-delay: 0.1s">
+        <div class="card-header">
+         <h3><i class="feather-info"></i> Instructions</h3>
+        </div>
+        <div class="card-body">
+         <p>Your CSV file must include the following headers (case-insensitive):</p>
+         <ul class="instruction-list">
+          <li><strong>Roll Number</strong> (Required, Unique)</li>
+          <li><strong>Name</strong> (Required)</li>
+          <li><strong>Email</strong> (Required)</li>
+          <li><strong>Phone</strong> (Optional)</li>
+          <li><strong>Course</strong> (Optional)</li>
+          <li><strong>Semester</strong> (Optional)</li>
+         </ul>
+         <div class="sample-csv">
+          <code>Roll Number, Name, Email, Phone, Course, Semester
+101, John Doe, john@example.com, 1234567890, BCA, 1</code>
+         </div>
+        </div>
+       </div>
+
+      </div>
+ </div>
+
+ <style>
+  .file-upload-wrapper {
+   position: relative;
+   height: 100px;
+   border: 2px dashed var(--border-color);
+   border-radius: var(--border-radius);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   background: var(--bg-secondary);
+   transition: all 0.3s ease;
+   cursor: pointer;
+  }
+
+  .file-upload-wrapper:hover {
+   border-color: var(--primary-color);
+   background: rgba(var(--primary-rgb), 0.05);
+  }
+
+  .file-upload-wrapper input[type="file"] {
+   position: absolute;
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: 100%;
+   opacity: 0;
+   cursor: pointer;
+  }
+
+  .file-upload-info {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   gap: 0.5rem;
+   color: var(--text-secondary);
+   pointer-events: none;
+  }
+
+  .file-upload-info i {
+   font-size: 1.5rem;
+  }
+
+  .instruction-list {
+   margin-left: 1.5rem;
+   margin-bottom: 1rem;
+  }
+
+  .instruction-list li {
+   margin-bottom: 0.25rem;
+   font-size: 0.9rem;
+  }
+
+  .sample-csv {
+   background: var(--bg-secondary);
+   padding: 1rem;
+   border-radius: var(--border-radius);
+   overflow-x: auto;
+   font-size: 0.85rem;
+   border: 1px solid var(--border-color);
+  }
+ </style>
+
+ <script>
+  const fileInput = document.getElementById('file');
+  const filenameDisplay = document.getElementById('filename');
+  const importBtn = document.getElementById('importBtn');
+  const form = document.querySelector('form');
+
+  fileInput.addEventListener('change', function () {
+   if (this.files && this.files.length > 0) {
+    filenameDisplay.textContent = this.files[0].name;
+    filenameDisplay.style.color = 'var(--text-primary)';
+    filenameDisplay.style.fontWeight = '500';
+   } else {
+    filenameDisplay.textContent = '';
+   }
+  });
+
+  form.addEventListener('submit', function () {
+   if (fileInput.files.length > 0) {
+    importBtn.disabled = true;
+    importBtn.innerHTML = '<i class="feather-loader spinning"></i> Importing...';
+   }
+  });
+ </script>
+
+ <%- include('../partials/footer') %>

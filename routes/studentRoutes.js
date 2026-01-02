@@ -1,26 +1,33 @@
 const express = require('express');
 const router = express.Router();
 const studentController = require('../controllers/studentController');
+const isAuth = require('../middleware/isAuth');
+const multer = require('multer');
+
+// Configure multer for memory storage (process CSV in memory)
+const upload = multer({ storage: multer.memoryStorage() });
+
+router.get('/', isAuth, studentController.getAllStudents);
 
 
-router.get('/', studentController.getAllStudents);
+router.get('/add', isAuth, studentController.getAddStudentForm);
 
 
-router.get('/add', studentController.getAddStudentForm);
+router.post('/add', isAuth, studentController.createStudent);
+
+// Import Route
+router.get('/import', isAuth, studentController.getImportForm);
+router.post('/import', isAuth, upload.single('file'), studentController.importStudents);
+
+router.get('/edit/:id', isAuth, studentController.getEditStudentForm);
 
 
-router.post('/add', studentController.createStudent);
+router.post('/edit/:id', isAuth, studentController.updateStudent);
 
 
-router.get('/edit/:id', studentController.getEditStudentForm);
+router.post('/delete/:id', isAuth, studentController.deleteStudent);
 
 
-router.post('/edit/:id', studentController.updateStudent);
-
-
-router.post('/delete/:id', studentController.deleteStudent);
-
-
-router.get('/api/:id', studentController.getStudentById);
+router.get('/api/:id', isAuth, studentController.getStudentById);
 
 module.exports = router;

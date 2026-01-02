@@ -1083,3 +1083,125 @@ body.modal-open {
         width: 100%;
     }
 }
+/* ======== Grid Layouts ======== */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ======== Header Flex & Actions ======== */
+.header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.header-flex h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--gray-800);
+}
+
+.header-flex .actions {
+    display: flex;
+    gap: 15px;
+}
+
+@media (max-width: 576px) {
+    .header-flex {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .header-flex .actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .header-flex .actions .btn {
+        width: 100%;
+    }
+}
+
+/* ======== Group Card Styles ======== */
+.group-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+.group-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.group-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.group-card h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-800);
+    margin: 0;
+}
+
+.group-card .badge {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.group-card .card-body {
+    flex: 1;
+}
+
+.group-card .description {
+    color: var(--gray-600);
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.group-card .stats-row {
+    display: flex;
+    align-items: center;
+    color: var(--gray-500);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+
+.group-card .stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.group-card .card-footer {
+    border-top: 1px solid var(--gray-200);
+    padding-top: 20px;
+    margin-top: auto;
+}
+
+.btn-block {
+    display: flex;
+    width: 100%;
+}

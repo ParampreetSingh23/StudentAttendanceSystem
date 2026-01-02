@@ -1,0 +1,57 @@
+<%- include('./partials/header') %>
+
+ <div class="container animate-fade-in">
+  <div class="form-container" style="max-width: 500px; margin: 50px auto;">
+   <h1 style="text-align: center; margin-bottom: 30px;">Register</h1>
+
+   <% if (error) { %>
+    <div class="alert error">
+     <%= error %>
+    </div>
+    <% } %>
+
+     <form action="/auth/register" method="POST">
+      <div class="form-group">
+       <label for="name">Full Name</label>
+       <input type="text" id="name" name="name" class="form-control" required autofocus>
+      </div>
+
+      <div class="form-group">
+       <label for="email">Email Address</label>
+       <input type="email" id="email" name="email" class="form-control" required>
+      </div>
+
+      <div class="form-group">
+       <label for="password">Password</label>
+       <input type="password" id="password" name="password" class="form-control" required>
+      </div>
+
+      <div class="form-group">
+       <label for="instituteType">Institute Type</label>
+       <select id="instituteType" name="instituteType" class="form-control" required>
+        <option value="" disabled selected>Select Institute Type</option>
+        <option value="School">School</option>
+        <option value="College">College</option>
+        <option value="University">University</option>
+        <option value="Coaching">Coaching Center</option>
+       </select>
+      </div>
+
+      <div class="form-group">
+       <label for="groupOrClass">Class / Group Name</label>
+       <input type="text" id="groupOrClass" name="groupOrClass" class="form-control"
+        placeholder="e.g. Class 10-A or Group B" required>
+      </div>
+
+      <div class="form-actions">
+       <button type="submit" class="btn primary-btn btn-block" style="width: 100%;">Register</button>
+      </div>
+
+      <p style="text-align: center; margin-top: 20px;">
+       Already have an account? <a href="/auth/login">Login</a>
+      </p>
+     </form>
+  </div>
+ </div>
+
+ <%- include('./partials/footer') %>
